@@ -17,12 +17,8 @@ function deploy_component_stacks () {
 
   run_aws_interaction_hook
 
-  echo "Running $COMPONENT_NAME end-to-end test..."
-
-  echo "Deploying test app for $COMPONENT_NAME test suite"
-  npx cdk deploy "*" --require-approval=never
-  echo "Test app $COMPONENT_NAME deployed."
-
+  npx cdk deploy "*" --require-approval=never --json --outputs-file="$INTEG_TEMP_DIR/${COMPONENT_NAME}_deploy.json" --silent
+  
   return 0
 }
 
@@ -31,9 +27,7 @@ function execute_component_test () {
 
   run_aws_interaction_hook
 
-  echo "Running test suite $COMPONENT_NAME..."
-  yarn run test "$COMPONENT_NAME.test" --json --outputFile="./.e2etemp/$COMPONENT_NAME.json"
-  echo "Test suite $COMPONENT_NAME complete."
+  yarn run test "$COMPONENT_NAME.test" --json --outputFile="$INTEG_TEMP_DIR/$COMPONENT_NAME.json" --silent
 
   return 0
 }
@@ -43,11 +37,9 @@ function destroy_component_stacks () {
 
   run_aws_interaction_hook
 
-  echo "Destroying test app $COMPONENT_NAME..."
   npx cdk destroy "*" -f
   rm -f "./cdk.context.json"
   rm -rf "./cdk.out"
-  echo "Test app $COMPONENT_NAME destroyed."
 
   return 0
 }
